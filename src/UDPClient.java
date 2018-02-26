@@ -17,6 +17,7 @@ public class UDPClient {
     private DatagramSocket socket;
     private String ip_address;
     private int  port;
+    private InetAddress IAddress;
     private String response;
 
     private byte[] buffer;
@@ -36,23 +37,27 @@ public class UDPClient {
 
             this.socket = new DatagramSocket();
 
-            InetAddress address = InetAddress.getByName(this.ip_address);
+            this.IAddress = InetAddress.getByName(this.ip_address);
             this.buffer = "Request connection".getBytes();
             DatagramPacket ConnectionRequest = new DatagramPacket(this.buffer, this.buffer.length,
-                    address, this.port);
+                    this.IAddress, this.port);
 
-            socket.send(ConnectionRequest);
+            this.socket.send(ConnectionRequest);
 
             DatagramPacket ServerResponse = new DatagramPacket(this.buffer, this.buffer.length);
-            this.socket.receive(ServerResponse);
 
             while(!connected && tries < ConnectionTries) {
+
+                this.socket.receive(ServerResponse);
 
                 if (new String(ServerResponse.getData(), 0, ServerResponse.getLength())
                         .equals("Connection accepted")) {
                     connected = true;
+                    this.buffer = "Response received".getBytes();
                     this.response = "Connection accepted!";
                 }
+
+                this.socket.send(ConnectionRequest);
                 tries++;
             }
 
@@ -76,7 +81,21 @@ public class UDPClient {
 
     public void EndConnection () {
 
+        this.buffer = "ShutDown".getBytes();
+
+        DatagramPacket CloseConnection = new DatagramPacket(this.buffer, this.buffer.length,
+                this.IAddress, this.port);
+        try {
+            this.socket.send(CloseConnection);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.response = "IOException: " + e.getMessage();
+        }
+
         this.socket.close();
+        this.response = "Connection finished";
+
     }
 
 }
