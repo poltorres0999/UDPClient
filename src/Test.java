@@ -2,7 +2,7 @@
 public class Test {
 
     public static void main (String[] args ) {
-        UDPClient UdpClient = new UDPClient("X",1234);
+        UDPClient UdpClient = new UDPClient("127.0.0.1",4445);
 
         if (!UdpClient.StartConnection()) {
             System.out.println("Connection refused!");

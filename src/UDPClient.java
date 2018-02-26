@@ -43,17 +43,18 @@ public class UDPClient {
                     this.IAddress, this.port);
 
             this.socket.send(ConnectionRequest);
+            this.buffer = new byte[20];
 
             DatagramPacket ServerResponse = new DatagramPacket(this.buffer, this.buffer.length);
 
             while(!connected && tries < ConnectionTries) {
 
                 this.socket.receive(ServerResponse);
+                System.out.println(new String(ServerResponse.getData(), 0, ServerResponse.getLength()));
 
                 if (new String(ServerResponse.getData(), 0, ServerResponse.getLength())
                         .equals("Connection accepted")) {
                     connected = true;
-                    this.buffer = "Response received".getBytes();
                     this.response = "Connection accepted!";
                 }
 
